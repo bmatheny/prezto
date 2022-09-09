@@ -1,3 +1,10 @@
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block; everything else may go below.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
 #
 # Executes commands at the start of an interactive session.
 #
@@ -5,9 +12,48 @@
 #   Sorin Ionescu <sorin.ionescu@gmail.com>
 #
 
-# Source Prezto.
+
+#
+# Path management unfortunately needs to be done here, and first (before we
+# load prezto), because it can't be specified in zshenv which is where it
+# probably belongs. This is because zprofile loads after zshenv, and the system
+# wide zprofile may set its own path variables. At does on my work machine at
+# least.
+#
+path=("/usr/local/bin" $path)
+
+# Setup homebrew environment info if available
+homebrew_locations=(
+  "${HOME}/src/third-party/homebrew"
+  "${HOME}/homebrew"
+  "/usr/local")
+for location in $homebrew_locations; do
+  if [[ -d "$location/bin" && -x "$location/bin/brew" ]]; then
+    eval "$(${location}/bin/brew shellenv)"
+    break
+  fi
+done
+
+# If we successfully got a homebrew, and have coreutils, modify our path
+if (( $+commands[brew] )); then
+  if [ $(brew --prefix coreutils 2>/dev/null) ]; then
+    path=("$(brew --prefix coreutils)/libexec/gnubin" $path)
+  fi
+fi
+
+#
+# Load prezto
+#
 if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
   source "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
 fi
 
-# Customize to your needs...
+#
+# Personal customizations, load zshplugin files
+#
+if [[ -d  "${HOME}/.zshplugins" ]]; then
+  for config_file ($HOME/.zshplugins/*.zsh) source $config_file
+fi
+
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
