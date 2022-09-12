@@ -51,8 +51,8 @@ fi
 #
 # Personal customizations, load zshplugin files
 #
-if [[ -d  "${HOME}/.zshplugins" ]]; then
-  for config_file ($HOME/.zshplugins/*.zsh) source $config_file
+if [[ -d  "${HOME}/.config/zsh/plugins" ]]; then
+  for config_file ($HOME/.config/zsh/plugins/*.zsh) source $config_file
 fi
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
