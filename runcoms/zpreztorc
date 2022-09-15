@@ -31,6 +31,7 @@ zstyle ':prezto:load' zmodule 'attr' 'stat'
 # The order matters.
 zstyle ':prezto:load' pmodule \
   'environment' \
+  'helper' \
   'terminal' \
   'editor' \
   'history' \
