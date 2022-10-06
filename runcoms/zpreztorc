@@ -32,6 +32,7 @@ zstyle ':prezto:load' zmodule 'attr' 'stat'
 zstyle ':prezto:load' pmodule \
   'environment' \
   'helper' \
+  'homebrew' \
   'terminal' \
   'editor' \
   'history' \
@@ -40,7 +41,6 @@ zstyle ':prezto:load' pmodule \
   'utility' \
   'completion' \
   'archive' \
-  'fasd' \
   'git' \
   'osx' \
   'ruby' \

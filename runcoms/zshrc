@@ -22,19 +22,66 @@ fi
 #
 path=("/usr/local/bin" $path)
 
-# Setup homebrew environment info if available
-homebrew_locations=(
-  "${HOME}/src/third-party/homebrew"
-  "${HOME}/homebrew"
-  "/usr/local")
-for location in $homebrew_locations; do
-  if [[ -d "$location/bin" && -x "$location/bin/brew" ]]; then
-    eval "$(${location}/bin/brew shellenv)"
-    break
+# Create a robust platform name string so that if homebrew is installed in a
+# location using this name, it will work on that machine.
+function get_platform_name() {
+  local os_type=$(uname -s) # Darwin, Linux
+  local machine_type=$(uname -m) # x86_64, arm64, aarch64
+  local flavor="" # rocky, ubuntu, 12.6 (for mac)
+  if [[ -s "/etc/os-release" ]]; then
+    source "/etc/os-release"
+    if [ -n "${ID}" ]; then
+      flavor="${ID}_${VERSION_ID:-Unknown}"
+    fi
+    if [[ "$OSTYPE" == darwin* ]]; then
+      flavor="$(sw_vers -productVersion)"
+    fi
   fi
-done
+  if [ -z "${flavor}" ]; then
+    flavor="unknown"
+  fi
+  echo "${os_type}-${machine_type}-${flavor}" # e.g. Linux-x86_64-rocky
+}
 
-# If we successfully got a homebrew, and have coreutils, modify our path
+# Update path variable to include brew location, if found
+function update_homebrew_path() {
+  # This is most likely set by `brew shellenv` and we don't want to set it again
+  if [[ -n "${HOMEBREW_CELLAR}" ]]; then
+    return
+  fi
+
+  # This is set by this script and if it was already set we don't need to set it again
+  if [[ -n "${HOMEBREW_PLATFORM_NAME}" ]]; then
+    return
+  fi
+
+  # Prefer local bin file since it doesn't polluate variable namespace
+  if [ -x "$HOME/bin/platform_name" ]; then
+    typeset -l HOMEBREW_PLATFORM_NAME=$($HOME/bin/platform_name)
+  else
+    typeset -l HOMEBREW_PLATFORM_NAME=$(get_platform_name)
+  fi
+
+  local homebrew_locations=(
+    "${HOME}/.homebrew/${HOMEBREW_PLATFORM_NAME}"
+    "${HOME}/homebrew/${HOMEBREW_PLATFORM_NAME}"
+    "/usr/local")
+  for location in $homebrew_locations; do
+    if [[ -d "$location/bin" && -x "$location/bin/brew" ]]; then
+      path=("$location/bin" "$location/sbin" $path)
+    fi
+  done
+}
+# Load this before zprezto init so that homebrew module gets loaded correctly
+update_homebrew_path
+
+#
+# Load prezto
+#
+if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
+  source "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
+fi
+
 if (( $+commands[brew] )); then
   if [ $(brew --prefix coreutils 2>/dev/null) ]; then
     path=("$(brew --prefix coreutils)/libexec/gnubin" $path)
@@ -42,13 +89,6 @@ if (( $+commands[brew] )); then
   if [ $(brew --prefix ruby 2>/dev/null) ]; then
     path=("$(brew --prefix ruby)/bin" $path)
   fi
-fi
-
-#
-# Load prezto
-#
-if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
-  source "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
 fi
 
 #
