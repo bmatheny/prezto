@@ -22,7 +22,7 @@ zstyle ':prezto:*:*' color 'yes'
 # zstyle ':prezto:load' pmodule-allow-overrides 'yes'
 
 # Set the Zsh modules to load (man zshmodules).
-# zstyle ':prezto:load' zmodule 'attr' 'stat'
+zstyle ':prezto:load' zmodule 'attr' 'stat'
 
 # Set the Zsh functions to load (man zshcontrib).
 # zstyle ':prezto:load' zfunction 'zargs' 'zmv'
@@ -31,6 +31,8 @@ zstyle ':prezto:*:*' color 'yes'
 # The order matters.
 zstyle ':prezto:load' pmodule \
   'environment' \
+  'helper' \
+  'homebrew' \
   'terminal' \
   'editor' \
   'history' \
@@ -38,7 +40,13 @@ zstyle ':prezto:load' pmodule \
   'spectrum' \
   'utility' \
   'completion' \
+  'archive' \
+  'git' \
+  'osx' \
+  'ruby' \
+  'syntax-highlighting' \
   'history-substring-search' \
+  'ssh' \
   'prompt'
 
 #
@@ -173,7 +181,7 @@ zstyle ':prezto:module:prompt' theme 'steeef'
 #
 
 # Set the SSH identities to load into the agent.
-# zstyle ':prezto:module:ssh:load' identities 'id_rsa' 'id_rsa2' 'id_github'
+zstyle ':prezto:module:ssh:load' identities 'id_bmatheny_ed25519' 'id_ed25519' 'id_rsa' 'id_rsa2' 'id_github'
 
 #
 # Syntax Highlighting
