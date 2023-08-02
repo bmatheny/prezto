@@ -62,6 +62,7 @@ function update_homebrew_path() {
   for location in $homebrew_locations; do
     if [[ -d "$location/bin" && -x "$location/bin/brew" ]]; then
       path=("$location/bin" "$location/sbin" $path)
+      break
     fi
   done
 }
