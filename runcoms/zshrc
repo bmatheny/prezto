@@ -10,10 +10,9 @@
 # Path management unfortunately needs to be done here, and first (before we
 # load prezto), because it can't be specified in zshenv which is where it
 # probably belongs. This is because zprofile loads after zshenv, and the system
-# wide zprofile may set its own path variables. At does on my work machine at
-# least.
+# wide zprofile may set its own path variables. This is a mac specific behavior.
 #
-path=("/usr/local/bin" $path)
+path=("$HOME/bin" "/usr/local/bin" $path)
 
 # Update path variable to include brew location, if found
 function update_homebrew_path() {
