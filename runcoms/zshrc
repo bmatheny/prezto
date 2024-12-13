@@ -23,6 +23,7 @@ function update_homebrew_path() {
   fi
 
   local homebrew_locations=(
+    "$HOME/homebrew"
     "/opt/homebrew"
     "/usr/local")
   for location in $homebrew_locations; do
