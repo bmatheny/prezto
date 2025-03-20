@@ -5,9 +5,60 @@
 #   Sorin Ionescu <sorin.ionescu@gmail.com>
 #
 
-# Source Prezto.
+
+#
+# Path management unfortunately needs to be done here, and first (before we
+# load prezto), because it can't be specified in zshenv which is where it
+# probably belongs. This is because zprofile loads after zshenv, and the system
+# wide zprofile may set its own path variables. This is a mac specific behavior.
+#
+path=("$HOME/bin" "/usr/local/bin" $path)
+
+# Update path variable to include brew location, if found
+function update_homebrew_path() {
+  # This is most likely set by `brew shellenv` and we don't want to set it again
+  if [[ -n "${HOMEBREW_CELLAR}" ]]; then
+    return
+  fi
+
+  local homebrew_locations=(
+    "$HOME/homebrew"
+    "/opt/homebrew"
+    "/usr/local")
+  for location in $homebrew_locations; do
+    if [[ -d "$location/bin" && -x "$location/bin/brew" ]]; then
+      path=("$location/bin" "$location/sbin" $path)
+      break
+    fi
+  done
+}
+# Load this before zprezto init so that homebrew module gets loaded correctly
+update_homebrew_path
+
+#
+# Load prezto
+#
 if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
   source "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
 fi
 
-# Customize to your needs...
+if (( $+commands[brew] )); then
+  if [ $(brew --prefix coreutils 2>/dev/null) ]; then
+    path=("$(brew --prefix coreutils)/libexec/gnubin" $path)
+  fi
+  if [ $(brew --prefix ruby 2>/dev/null) ]; then
+    path=("$(brew --prefix ruby)/bin" $path)
+    path=("$(gem environment gemdir)/bin" $path)
+  else
+    path=("$(gem environment user_gemhome)/bin" $path)
+  fi
+else
+  path=("$(gem environment user_gemhome)/bin" $path)
+fi
+
+#
+# Personal customizations, load zshplugin files
+#
+if [[ -d  "${HOME}/.config/zsh/plugins" ]]; then
+  for config_file ($HOME/.config/zsh/plugins/*.zsh) source $config_file
+fi
