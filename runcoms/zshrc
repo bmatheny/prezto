@@ -46,14 +46,6 @@ if (( $+commands[brew] )); then
   if [ $(brew --prefix coreutils 2>/dev/null) ]; then
     path=("$(brew --prefix coreutils)/libexec/gnubin" $path)
   fi
-  if [ $(brew --prefix ruby 2>/dev/null) ]; then
-    path=("$(brew --prefix ruby)/bin" $path)
-    path=("$(gem environment gemdir)/bin" $path)
-  else
-    path=("$(gem environment user_gemhome)/bin" $path)
-  fi
-else
-  path=("$(gem environment user_gemhome)/bin" $path)
 fi
 
 #
